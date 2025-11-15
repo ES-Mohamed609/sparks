@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Empowerment & Accessibility Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f5f5f5; /* Light gray neutral */
+            color: #333; /* High contrast black */
+            line-height: 1.6;
+            font-size: 16px; /* Large, legible */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+        .btn {
+            background-color: #C70039; /* Huawei red */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #a00030;
+        }
+        .btn:focus {
+            outline: 2px solid #C70039;
+            outline-offset: 2px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid #C70039;
+        }
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: space-around;
+        }
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            padding: 10px;
+        }
+        nav a:hover, nav a.active {
+            color: #C70039;
+        }
+        /* Voice Assistant Button */
+        .voice-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #C70039;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .voice-assistant:focus {
+            outline: 2px solid white;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Dark Mode Toggle (for Settings) */
+        .dark-mode {
+            background-color: #333;
+            color: #f5f5f5;
+        }
+        .dark-mode .card {
+            background: #444;
+            color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Voice Assistant Button (Global) -->
+    <button class="voice-assistant" id="voiceBtn" aria-label="Activate Voice Assistant" title="Voice Assistant">🎤</button>
+
+    <!-- Navigation (Shown after login) -->
+    <nav id="nav" style="display: none;">
+        <ul>
+            <li><a href="#" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-page="profile">Profile</a></li>
+            <li><a href="#" class="nav-link" data-page="learning">Learning</a></li>
+            <li><a href="#" class="nav-link" data-page="jobs">Jobs</a></li>
+            <li><a href="#" class="nav-link" data-page="community">Community</a></li>
+            <li><a href="#" class="nav-link" data-page="company">Company Portal</a></li>
+            <li><a href="#" class="nav-link" data-page="settings">Settings</a></li>
+        </ul>
+    </nav>
+
+    <!-- Pages Container -->
+    <div class="container">
+        <!-- Login/Registration Page -->
+        <section id="login" class="page">
+            <h1>Welcome to AI Empowerment Platform</h1>
+            <p>Built on Huawei Cloud for inclusive accessibility.</p>
+            <form id="loginForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required aria-describedby="emailHelp">
+                <small id="emailHelp">We'll use this for secure login via Huawei IAM.</small>
+                
+                <label for="disability">Disability Type (Optional):</label>
+                <select id="disability">
+                    <option value="">Select</option>
+                    <option value="visual">Visual</option>
+                    <option value="hearing">Hearing</option>
+                    <option value="physical">Physical</option>
+                </select>
+                
+                <label for="accessibilityToggle">
+                    <input type="checkbox" id="accessibilityToggle"> Enable Accessibility Features (TTS & Voice Assistant)
+                </label>
+                
+                <button type="submit" class="btn">Sign Up / Login with Huawei ID</button>
+            </form>
+        </section>
+
+        <!-- Dashboard Page -->
+        <section id="dashboard" class="page" style="display: none;">
+            <h1>User Dashboard</h1>
+            <div class="grid">
+                <div class="card">
+                    <h2>Profile Completion</h2>
+                    <p>75% Complete</p>
+                </div>
+                <div class="card">
+                    <h2>CV Analysis Credits</h2>
+                    <p>2 Free this month (Powered by ModelArts)</p>
+                </div>
+                <div class="card">
+                    <h2>Recommended Jobs</h2>
+                    <p>Software Engineer at Huawei - Accessibility Score: 95%</p>
+                </div>
+                <div class="card">
+                    <h2>New Courses</h2>
+                    <p>Accessible Web Design - Free</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Page -->
+        <section id="profile" class="page" style="display: none;">
+            <h1>Profile</h1>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                
+                <label for="skills">Skills:</label>
+                <input type="text" id="skills" placeholder="e.g., Python, Sign Language">
+                
+                <label for="cvUpload">Upload CV:</label>
+                <input type="file" id="cvUpload" accept=".pdf,.docx">
+                
+                <button type="button" class="btn" id="analyzeBtn">Analyze My CV</button>
+                <p>Data stored securely in Huawei GaussDB.</p>
+            </form>
+            <div id="analysisModal" class="modal">
+                <div class="modal-content">
+                    <h2>CV Analysis Summary</h2>
+                    <p>Skills Detected: Python, Accessibility Design. Experience Level: Intermediate.</p>
+                    <button class="btn" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Page -->
+        <section id="learning" class="page" style="display: none;">
+            <h1>Learning</h1>
+            <div class="grid">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200?text=Course+Thumbnail" alt="Course Thumbnail">
+                    <h3>Accessible Web Design</h3>
+                    <p>Difficulty: Beginner | Tags: Accessible</p>
+                    <button class="btn">Add to My Learning Path</button>
+                </div>
+                <div class="card">
+                    <video controls>
+                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                        Buffer-free via OBS/CDN.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Jobs Page -->
+        <section id="jobs" class="page" style="display: none;">
+            <h1>Job Matching</h1>
+            <div class="grid">
+                <div class="card">
+                    <h3>Software Engineer at Huawei</h3>
+                    <p>Accessibility Score: 95%</p>
+                    <button class="btn">Apply Now</button>
+                </div>
+            </div>
+            <aside>
+                <h2>Recent CV Analysis</h2>
+                <p>Powered by ModelArts: High match for tech roles.</p>
+            </aside>
+        </section>
+
+        <!-- Community Page -->
+        <section id="community" class="page" style="display: none;">
+            <h1>Community</h1>
+            <div class="card">
+                <h3>Discussion Thread</h3>
+                <p>User Avatar | Top 5 Helpers Badge</p>
+                <button class="btn">Ask for Help</button>
+                <button class="btn">Offer Support</button>
+                <textarea placeholder="Comment with emoji or speech-to-text"></textarea>
+            </div>
+        </section>
+
+        <!-- Company Portal Page -->
+        <section id="company" class="page" style="display: none;">
+            <h1>Company Portal</h1>
+            <p>Access managed via Huawei IAM + APIG.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Applicant Stats</h3>
+                    <p>50 Applications This Month</p>
+                </div>
+                <div class="card">
+                    <h3>Search by Skills</h3>
+                    <input type="text" placeholder="e.g., Python">
+                    <button class="btn">Search</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Page -->
+        <section id="settings" class="page" style="display: none;">
+            <h1>Settings</h1>
+            <label for="darkMode">
+                <input type="checkbox" id="darkMode"> Dark/Light Mode
+            </label>
+            <div class="card">
+                <h2>Privacy</h2>
+                <p>Your data is encrypted with Huawei KMS.</p>
+            </div>
+            <div class="card">
+                <h2>Compliance</h2>
+                <p>GDPR & WCAG 2.1 Compliant.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Page Navigation
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                pages.forEach(page => page.style.display = 'none');
+                document.getElementById(pageId).style.display = 'block';
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Login Form Submission
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('nav').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'block';
+            alert('Logged in! Proceeding to Dashboard.');
+        });
+
+        // Voice Assistant
+        document.getElementById('voiceBtn').addEventListener('click', () => {
+            alert('Voice Assistant Activated! (Integrate with Web Speech API or Huawei services)');
+        });
+
+        // CV Analysis Modal
+        document.getElementById('analyzeBtn').addEventListener('click', () => {
+            document.getElementById('analysisModal').style.display = 'flex';
+        });
+        function closeModal() {
+            document.getElementById('analysisModal').style.display = 'none';
+        }
+
+        // Dark Mode Toggle
+        document.getElementById('darkMode').addEventListener('change', (e) => {
+            document.body.classList.toggle('dark-mode', e.target.checked);
+        });
+    </script>
+</body>
+</html>
+
+<script>
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+        // Replace <backend-domain> with your deployed backend URL or IP
+        const response = await fetch('http://http://www.abrar-berry-sparks-api.com:212/api/:3000/api/analyze-cv', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cvData: 'sample CV data' })
+        });
+    
+        const data = await response.json();
+    
+        // Show result in modal or alert
+        alert(`Skills detected: ${data.skills.join(', ')}\nMessage: ${data.message}`);
+    });
+    </script>
+    

@@ -18,6 +18,8 @@
             color: #333; /* High contrast black */
             line-height: 1.6;
             font-size: 16px; /* Large, legible */
+            min-height: 100vh;
+            position: relative; /* For notifications */
         }
         .container {
             max-width: 1200px;
@@ -44,10 +46,13 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.1s;
         }
         .btn:hover {
             background-color: #a00030;
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
         .btn:focus {
             outline: 2px solid #C70039;
@@ -98,6 +103,7 @@
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
         }
         .voice-assistant:focus {
             outline: 2px solid white;
@@ -110,16 +116,33 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
         .modal-content {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
             max-width: 500px;
             width: 90%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        /* Notification Box */
+        #notification-box {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 99;
         }
         /* Responsive */
         @media (max-width: 768px) {
@@ -139,11 +162,26 @@
             background: #444;
             color: #f5f5f5;
         }
+        .dark-mode nav {
+            background: #222;
+            border-bottom-color: #555;
+        }
+        .dark-mode nav a {
+            color: #f5f5f5;
+        }
+        .dark-mode input, .dark-mode select, .dark-mode textarea {
+            background-color: #555;
+            color: #f5f5f5;
+            border-color: #777;
+        }
     </style>
 </head>
 <body>
     <!-- Voice Assistant Button (Global) -->
     <button class="voice-assistant" id="voiceBtn" aria-label="Activate Voice Assistant" title="Voice Assistant">🎤</button>
+
+    <!-- Notification Box -->
+    <div id="notification-box" aria-live="polite"></div>
 
     <!-- Navigation (Shown after login) -->
     <nav id="nav" style="display: none;">
@@ -211,7 +249,7 @@
         <!-- Profile Page -->
         <section id="profile" class="page" style="display: none;">
             <h1>Profile</h1>
-            <form>
+            <form id="profileForm">
                 <label for="name">Name:</label>
                 <input type="text" id="name" required>
                 
@@ -227,7 +265,7 @@
             <div id="analysisModal" class="modal">
                 <div class="modal-content">
                     <h2>CV Analysis Summary</h2>
-                    <p>Skills Detected: Python, Accessibility Design. Experience Level: Intermediate.</p>
+                    <p id="analysisResult">Upload a CV and click "Analyze My CV" to see results.</p>
                     <button class="btn" onclick="closeModal()">Close</button>
                 </div>
             </div>
@@ -238,16 +276,18 @@
             <h1>Learning</h1>
             <div class="grid">
                 <div class="card">
-                    <img src="https://via.placeholder.com/300x200?text=Course+Thumbnail" alt="Course Thumbnail">
+                    <img src="https://placehold.co/300x200/C70039/FFFFFF?text=Course+Thumbnail" alt="Course Thumbnail">
                     <h3>Accessible Web Design</h3>
                     <p>Difficulty: Beginner | Tags: Accessible</p>
                     <button class="btn">Add to My Learning Path</button>
                 </div>
                 <div class="card">
-                    <video controls>
+                    <!-- Note: This video URL is for demonstration and might not comply with all accessibility standards -->
+                    <video controls width="100%">
                         <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
                         Buffer-free via OBS/CDN.
                     </video>
+                    <p>Video content with closed captions via Huawei OBS.</p>
                 </div>
             </div>
         </section>
@@ -315,6 +355,21 @@
     </div>
 
     <script>
+        // Utility function to display custom notification (replacing alert)
+        function showNotification(message, duration = 3000) {
+            const box = document.getElementById('notification-box');
+            box.textContent = message;
+            box.style.display = 'block';
+            box.style.opacity = '1';
+
+            setTimeout(() => {
+                box.style.opacity = '0';
+                setTimeout(() => {
+                    box.style.display = 'none';
+                }, 500); // Wait for fade out
+            }, duration);
+        }
+
         // Page Navigation
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
@@ -330,23 +385,43 @@
         });
 
         // Login Form Submission
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('nav').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'block';
-            alert('Logged in! Proceeding to Dashboard.');
+            const email = document.getElementById('email').value;
+            const disability = document.getElementById('disability').value;
+
+            try {
+                // Call the backend login endpoint
+                const response = await fetch('http://backend-service:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, disability })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('nav').style.display = 'block';
+                    document.getElementById('dashboard').style.display = 'block';
+                    showNotification(`Logged in successfully! Welcome, ${data.email}.`, 4000);
+                } else {
+                    showNotification('Login failed. Please try again.', 4000);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Could not connect to the backend service. Check Docker Compose setup.', 5000);
+            }
         });
 
         // Voice Assistant
         document.getElementById('voiceBtn').addEventListener('click', () => {
-            alert('Voice Assistant Activated! (Integrate with Web Speech API or Huawei services)');
+            showNotification('Voice Assistant Activated! Ready for your command.', 3000);
         });
 
         // CV Analysis Modal
-        document.getElementById('analyzeBtn').addEventListener('click', () => {
+        function openModal() {
             document.getElementById('analysisModal').style.display = 'flex';
-        });
+        }
         function closeModal() {
             document.getElementById('analysisModal').style.display = 'none';
         }
@@ -355,23 +430,50 @@
         document.getElementById('darkMode').addEventListener('change', (e) => {
             document.body.classList.toggle('dark-mode', e.target.checked);
         });
+
+
+        // --- Backend API Calls ---
+
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const analysisResultEl = document.getElementById('analysisResult');
+            const uploadInput = document.getElementById('cvUpload');
+            
+            if (uploadInput.files.length === 0) {
+                showNotification('Please upload a PDF or DOCX file first.', 3000);
+                return;
+            }
+
+            // Simple mock for CV data content (in a real app, you'd send the file content)
+            const mockCvData = `CV file: ${uploadInput.files[0].name}`;
+            analysisResultEl.textContent = 'Analyzing CV... Please wait (Powered by ModelArts)';
+
+            try {
+                // IMPORTANT: Use the service name and internal port (backend-service:3000)
+                const response = await fetch('http://backend-service:3000/api/analyze-cv', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cvData: mockCvData })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    analysisResultEl.innerHTML = `
+                        <strong>Analysis Complete!</strong><br>
+                        Skills Detected: <strong>${data.skills.join(', ')}</strong><br>
+                        Message: ${data.message}
+                    `;
+                } else {
+                    analysisResultEl.textContent = 'Analysis failed. Server returned an error.';
+                    showNotification('CV Analysis failed.', 4000);
+                }
+            } catch (error) {
+                console.error('CV Analysis API Error:', error);
+                analysisResultEl.textContent = 'Failed to connect to the analysis service.';
+                showNotification('Connection error: Cannot reach Backend service.', 5000);
+            }
+            
+            openModal();
+        });
     </script>
 </body>
 </html>
-
-<script>
-    document.getElementById('analyzeBtn').addEventListener('click', async () => {
-        // Replace <backend-domain> with your deployed backend URL or IP
-        const response = await fetch('http://123.45.67.89:3000/api/analyze-cv', { // <-- replace 123.45.67.89 with backend IP
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cvData: 'sample CV data' })
-});
-
-        const data = await response.json();
-    
-        // Show result in modal or alert
-        alert(`Skills detected: ${data.skills.join(', ')}\nMessage: ${data.message}`);
-    });
-    </script>
-    

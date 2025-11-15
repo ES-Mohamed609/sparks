@@ -362,12 +362,12 @@
 <script>
     document.getElementById('analyzeBtn').addEventListener('click', async () => {
         // Replace <backend-domain> with your deployed backend URL or IP
-        const response = await fetch('http://http://www.abrar-berry-sparks-api.com:212/api/:3000/api/analyze-cv', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cvData: 'sample CV data' })
-        });
-    
+        const response = await fetch('http://123.45.67.89:3000/api/analyze-cv', { // <-- replace 123.45.67.89 with backend IP
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cvData: 'sample CV data' })
+});
+
         const data = await response.json();
     
         // Show result in modal or alert

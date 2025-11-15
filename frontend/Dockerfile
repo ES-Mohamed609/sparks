@@ -1,10 +1,10 @@
-# Use Nginx for static hosting
-FROM nginx:stable-alpine
 
-# Copy your static files to nginx container
-COPY . /usr/share/nginx/html
+FROM nginx:alpine
 
-# Expose port 80
+COPY index.html /usr/share/nginx/html/index.html
+
+COPY . /usr/share/nginx/html/
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
